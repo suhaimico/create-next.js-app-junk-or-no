@@ -47,27 +47,70 @@ const healthyFoods = [
 
 const examples = ["Apple", "Pizza", "Oatmeal", "Potato chips"];
 
-function classifyFood(food) {
+const exampleDescriptions = {
+  Apple: "Fresh and sliced, with nothing added.",
+  Pizza: "Made with white-flour dough, cheese, pepperoni, and baked in an oven.",
+  Oatmeal: "Rolled oats cooked in water and topped with berries.",
+  "Potato chips": "Thin potato slices deep-fried in oil and sprinkled with salt.",
+};
+
+const lessHealthyPreparation = [
+  "deep fried",
+  "deep-fried",
+  "fried in oil",
+  "covered in sugar",
+  "sugar coated",
+  "sugar-coated",
+  "candy coated",
+  "processed meat",
+];
+
+const nutritiousPreparation = [
+  "fresh",
+  "steamed",
+  "roasted",
+  "grilled",
+  "boiled",
+  "baked",
+  "whole grain",
+  "whole-grain",
+];
+
+function classifyFood(food, description) {
   const cleanFood = food.trim().toLowerCase();
+  const details = description.trim().toLowerCase();
+  const fullDescription = `${cleanFood} ${details}`;
 
   if (!cleanFood) return null;
-  if (junkFoods.some((item) => cleanFood.includes(item))) return "junk";
-  if (healthyFoods.some((item) => cleanFood.includes(item))) return "healthy";
+  if (
+    junkFoods.some((item) => cleanFood.includes(item)) ||
+    lessHealthyPreparation.some((method) => fullDescription.includes(method))
+  ) {
+    return "junk";
+  }
+  if (
+    healthyFoods.some((item) => cleanFood.includes(item)) ||
+    nutritiousPreparation.some((method) => details.includes(method))
+  ) {
+    return "healthy";
+  }
   return "unknown";
 }
 
 export default function Home() {
   const [food, setFood] = useState("");
+  const [description, setDescription] = useState("");
   const [result, setResult] = useState(null);
 
   function checkFood(event) {
     event.preventDefault();
-    setResult(classifyFood(food));
+    setResult(classifyFood(food, description));
   }
 
   function chooseExample(example) {
     setFood(example);
-    setResult(classifyFood(example));
+    setDescription(exampleDescriptions[example]);
+    setResult(classifyFood(example, exampleDescriptions[example]));
   }
 
   const resultContent = {
@@ -113,23 +156,52 @@ export default function Home() {
               Is your food a <span className="text-emerald-600">yes</span> or a <span className="text-orange-500">no</span>?
             </h1>
             <p className="mt-5 max-w-xl text-lg leading-8 text-slate-600">
-              Type in a food and get a quick, friendly guide. No calorie counting, no complicated rules.
+              Tell us what it is and how it&apos;s made. We&apos;ll give you a quick, friendly guide.
             </p>
 
-            <form onSubmit={checkFood} className="mt-9 rounded-3xl bg-white p-3 shadow-[0_18px_50px_-20px_rgba(15,23,42,0.25)] ring-1 ring-slate-100 sm:flex sm:gap-3">
-              <label htmlFor="food" className="sr-only">Food name</label>
-              <input
-                id="food"
-                value={food}
-                onChange={(event) => setFood(event.target.value)}
-                placeholder="Try “pizza” or “apple”"
-                className="h-14 w-full rounded-2xl px-5 text-lg outline-none placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-400"
-              />
+            <form onSubmit={checkFood} className="mt-9 rounded-3xl bg-white p-5 shadow-[0_18px_50px_-20px_rgba(15,23,42,0.25)] ring-1 ring-slate-100 sm:p-6">
+              <div className="grid gap-5">
+                <div>
+                  <label htmlFor="food" className="mb-2 block text-sm font-bold text-slate-700">Food item</label>
+                  <input
+                    id="food"
+                    value={food}
+                    onChange={(event) => {
+                      setFood(event.target.value);
+                      setResult(null);
+                    }}
+                    placeholder="e.g. Homemade granola"
+                    required
+                    maxLength={80}
+                    className="h-13 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-base outline-none placeholder:text-slate-400 focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100"
+                  />
+                </div>
+                <div>
+                  <div className="mb-2 flex items-end justify-between gap-3">
+                    <label htmlFor="description" className="block text-sm font-bold text-slate-700">Describe it &amp; how it&apos;s made</label>
+                    <span className="text-xs text-slate-400">{description.length}/240</span>
+                  </div>
+                  <textarea
+                    id="description"
+                    value={description}
+                    onChange={(event) => {
+                      setDescription(event.target.value);
+                      setResult(null);
+                    }}
+                    placeholder="What ingredients are in it? Is it baked, fried, fresh, or processed?"
+                    required
+                    maxLength={240}
+                    rows={3}
+                    className="w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-base leading-6 outline-none placeholder:text-slate-400 focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100"
+                  />
+                  <p className="mt-2 text-xs leading-5 text-slate-500">A sentence or two helps us give you a better answer.</p>
+                </div>
+              </div>
               <button
                 type="submit"
-                className="mt-3 h-14 w-full rounded-2xl bg-emerald-500 px-7 text-base font-bold text-white transition hover:bg-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-200 sm:mt-0 sm:w-auto"
+                className="mt-5 h-14 w-full rounded-2xl bg-emerald-500 px-7 text-base font-bold text-white shadow-lg shadow-emerald-200 transition hover:-translate-y-0.5 hover:bg-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-200"
               >
-                Check food
+                Check my food <span aria-hidden="true">→</span>
               </button>
             </form>
 
@@ -152,7 +224,8 @@ export default function Home() {
                 <div className="flex gap-4">
                   <span className="text-3xl" aria-hidden="true">{resultContent[result].emoji}</span>
                   <div>
-                    <h2 className="text-lg font-extrabold">{resultContent[result].title}</h2>
+                    <p className="text-xs font-bold uppercase tracking-widest opacity-60">Our quick take</p>
+                    <h2 className="mt-1 text-lg font-extrabold">{resultContent[result].title}</h2>
                     <p className="mt-1 leading-6">{resultContent[result].text}</p>
                   </div>
                 </div>
