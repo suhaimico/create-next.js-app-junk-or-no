@@ -152,7 +152,7 @@ export default function Home() {
             <span className="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-sm font-bold text-emerald-800">
               Healthy eating, made easy
             </span>
-            <h1 className="mt-5 text-5xl font-black leading-[1.03] tracking-tight text-slate-950 sm:text-6xl">
+            <h1 className="mt-5 max-w-2xl font-sans text-[4rem] font-extrabold leading-[0.9] tracking-[-0.075em] text-slate-950 sm:text-[5.75rem] lg:text-[7.25rem]">
               Is your food a <span className="text-emerald-600">yes</span> or a <span className="text-orange-500">no</span>?
             </h1>
             <p className="mt-5 max-w-xl text-lg leading-8 text-slate-600">
